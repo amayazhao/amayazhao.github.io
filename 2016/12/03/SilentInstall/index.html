@@ -92,7 +92,7 @@
 <meta property="og:site_name" content="赵先森的博客">
 <meta property="og:description" content="简介静默安装用于解决android自动嵌入式智能设备远程自动升级问题，安装过程无需人为操作。本项目通过获取系统platform签名，并利用隐藏Api–PackageManage实现Apk管理服务，设备内其他程序可通过广播接口完成应用程序静默安装与卸载功能。
 折腾过程最近为公司设备添加远程更新功能，在如何实现静默安装上折腾了很久，过程如下：">
-<meta property="og:updated_time" content="2016-12-03T07:08:50.000Z">
+<meta property="og:updated_time" content="2016-12-03T07:19:21.825Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="通过广播实现静默安装与静默卸载的应用管理服务">
 <meta name="twitter:description" content="简介静默安装用于解决android自动嵌入式智能设备远程自动升级问题，安装过程无需人为操作。本项目通过获取系统platform签名，并利用隐藏Api–PackageManage实现Apk管理服务，设备内其他程序可通过广播接口完成应用程序静默安装与卸载功能。
@@ -390,7 +390,7 @@
 <li><p>最后还是用了网上比较流行的获取系统签名，使用PackageManage的方法，虽然过程还是挺麻烦，但还真的很好用，最后我把静默安装与卸载功能独立成一个开机启动的服务，发送指定广播可以调用，这样以后谁的应用想更新对接我接口就好，无需重新实现。</p>
 </li>
 </ul>
-<p>大家也可以直接拿来用，不过得用系统签名重新生成我的apk，缺点就是这样，不过已经免去了很多折腾，关于系统签名教程，<a href="">Click me</a></p>
+<p>大家也可以直接拿来用，不过得用系统签名重新生成我的apk，缺点就是这样，不过已经免去了很多折腾，关于系统签名教程，<a href="http://zhaopengcheng.top/2016/12/03/SystemSigned/">Click me</a></p>
 <p><strong>项目地址：<a href="https://github.com/amayazhao/SilentInstall" target="_blank" rel="external">https://github.com/amayazhao/SilentInstall</a></strong></p>
 <h2 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h2><p><strong>静默安装</strong>用于解决android自动嵌入式智能设备远程自动升级问题，安装过程无需人为操作。本项目通过获取系统platform签名，并利用隐藏Api–PackageManage实现Apk管理服务，设备内其他程序可通过广播接口完成应用程序静默安装与卸载功能。</p>
 <h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><h2 id="使用-Eclipse与android-studio通用"><a href="#使用-Eclipse与android-studio通用" class="headerlink" title="使用(Eclipse与android studio通用)"></a>使用(Eclipse与android studio通用)</h2><p>静默安装条件比较苛刻（只讨论无法root的情况），需使用与android系统相同的签名获取SignatureOrSystem权限，但由于android系统签名每个厂家Rom各有不同，故缺点也很明显改程序需专门制作匹配的签名。下面介绍如何使用该项目</p>
@@ -398,7 +398,7 @@
 <li><p>生成使用系统签名的本项目Apk（比较麻烦的一点）</p>
 <ul>
 <li>前提条件拿到系统的签名文件：platform.pk8 platform.x509.pem（可从码源获取，一般做嵌入式的公司应该不是问题）</li>
-<li>签名，如何制作签名， <a href="">请点击</a></li>
+<li>签名，如何制作签名， <a href="http://zhaopengcheng.top/2016/12/03/SystemSigned/">请点击</a></li>
 </ul>
 </li>
 <li><p>安装后开启自动启动服务，（PS：本想做一个纯Service程序，还得继续研究一下）</p>
@@ -407,11 +407,11 @@
 </li>
 </ol>
 <ul>
-<li><p>需按照接口发送广播请求</p>
+<li>需按照接口发送广播请求</li>
+</ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line">  * 发送静默安装请求</div><div class="line">  * <span class="doctag">@Action</span>：android.intent.action.zhao.MANAGE_INSTALL_SILENT</div><div class="line">  * <span class="doctag">@param</span> apkPath 安装包本地地址</div><div class="line">  * <span class="doctag">@param</span> packageName 包名</div><div class="line">  * <span class="doctag">@param</span> isOpen 安装成功后是否打开</div><div class="line">  */</div><div class="line"> <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">SendInstallBroadcast</span><span class="params">(String apkPath, String packageName, <span class="keyword">boolean</span> isOpen)</span></span>&#123;</div><div class="line">     Intent mIntent = <span class="keyword">new</span> Intent(<span class="string">"android.intent.action.zhao.MANAGE_INSTALL_SILENT"</span>);</div><div class="line">     mIntent.putExtra(<span class="string">"apkpath"</span>,apkPath);</div><div class="line">     mIntent.putExtra(<span class="string">"package"</span>,packageName);</div><div class="line">     mIntent.putExtra(<span class="string">"isopen"</span>, isOpen);</div><div class="line">     sendBroadcast(mIntent);</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
-</li>
-<li><p>还可以实现接收结果广播，获得执行结果</p>
-</li>
+<ul>
+<li>还可以实现接收结果广播，获得执行结果</li>
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line"> * 接收执行结果</div><div class="line"> * 注册广播：com.zhao.install.EXCUTOR_RESULT</div><div class="line"> */</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">myReceiver</span> <span class="keyword">extends</span> <span class="title">BroadcastReceiver</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context context, Intent intent)</span> </span>&#123;</div><div class="line">        <span class="comment">//1表示执行成功</span></div><div class="line">        <span class="keyword">int</span> result = intent.getIntExtra(<span class="string">"result"</span>,<span class="number">0</span>);</div><div class="line">        <span class="keyword">if</span>(result == <span class="number">1</span>)&#123;</div><div class="line">            showResult(<span class="string">"操作成功"</span>);</div><div class="line">        &#125;<span class="keyword">else</span> &#123;</div><div class="line">            showResult(<span class="string">"操作失败"</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <ul>
