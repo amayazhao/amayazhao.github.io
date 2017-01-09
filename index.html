@@ -305,7 +305,7 @@
               
                 
                 <a class="post-title-link" href="/2017/01/08/android-message/" itemprop="url">
-                  Android消息机制（MessageQueue、Looper、Handler）
+                  Android消息机制详解（MessageQueue、Looper、Handler）
                 </a>
               
             
@@ -383,7 +383,7 @@
         
           <h2 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h2><p>在子线程中利用Handler机制来实现UI更新想必都不会陌生，最近项目中注意到了一种Thread中转换到ActivityThread的方式：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable)&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</div><div class="line">         Handler mHandler = <span class="keyword">new</span> Handler(Looper.getMainLooper);</div><div class="line">         mHandler.post(<span class="keyword">new</span> Runnable)&#123;</div><div class="line">             <span class="meta">@Override</span></div><div class="line">             <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</div><div class="line">                <span class="comment">//操作UI线程</span></div><div class="line">             &#125;</div><div class="line">         &#125;</div><div class="line">     &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>与常见Message方式不同，而是直接转到UI线程，有更大的灵活性，但实现方式感觉有点懵，就下定决心看看Android消息机制的原理。<br>所以写这篇文章主要是记录消息机制的原理，并结合上例分析过程，让自己对Handler机制有一个比较清晰的认识。</p>
+<p>与常见Message方式不同，而是直接转到UI线程，有更大的灵活性，但实现方式感觉有点懵，Handler是如何实现线程的转换的，就下定决心看看Android消息机制的原理。<br>所以写这篇文章主要是记录消息机制的原理，并结合上例分析过程，让自己对Handler机制有一个比较清晰的认识。</p>
           <!--noindex-->
           <div class="post-more-link text-center">
             <a class="btn" href="/2017/01/08/android-message/#more" rel="contents">
