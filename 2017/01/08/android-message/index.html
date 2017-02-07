@@ -93,7 +93,7 @@
 <meta property="og:description" content="引子在子线程中利用Handler机制来实现UI更新想必都不会陌生，最近项目中注意到了一种Thread中转换到ActivityThread的方式：
 123456789101112new Thread(new Runnable)&amp;#123;    @Override     public void run()&amp;#123;         Handler mHandler = new Handler(L">
 <meta property="og:image" content="http://img.blog.csdn.net/20140213160628984">
-<meta property="og:updated_time" content="2017-01-09T15:04:59.120Z">
+<meta property="og:updated_time" content="2017-02-07T13:17:19.469Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Adroid核心知识：消息机制详解（MessageQueue、Looper、Handler）">
 <meta name="twitter:description" content="引子在子线程中利用Handler机制来实现UI更新想必都不会陌生，最近项目中注意到了一种Thread中转换到ActivityThread的方式：
@@ -384,6 +384,7 @@
         <h2 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h2><p>在子线程中利用Handler机制来实现UI更新想必都不会陌生，最近项目中注意到了一种Thread中转换到ActivityThread的方式：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable)&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</div><div class="line">         Handler mHandler = <span class="keyword">new</span> Handler(Looper.getMainLooper);</div><div class="line">         mHandler.post(<span class="keyword">new</span> Runnable)&#123;</div><div class="line">             <span class="meta">@Override</span></div><div class="line">             <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</div><div class="line">                <span class="comment">//操作UI线程</span></div><div class="line">             &#125;</div><div class="line">         &#125;</div><div class="line">     &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>与常见Message方式不同，而是直接转到UI线程，有更大的灵活性，但实现方式感觉有点懵，Handler是如何实现线程的转换的，就下定决心看看Android消息机制的原理。<br>所以写这篇文章主要是记录消息机制的原理，并结合上例分析过程，让自己对Handler机制有一个比较清晰的认识。</p>
+<a id="more"></a>
 <h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><p>这里有三个类：<br><strong>MessageQueue</strong>：消息队列，主要提供了消息队列的插入(enqueueMessage)与弹出(next)功能；<br><strong>Looper</strong>：主要实现无限循环的读取MessageQueue中是否有新Message，查找到会分发（dispatchMessage）给Handler处理，否则一直等待；<br><strong>Handler</strong>：Handler实现向MessageQueue发送Message，另外Looper接收到Message后调用Handler的处理，即具体实现Android消息机制的类。</p>
 <p>先来看一张图，此图很好的说明了Handler消息机制的实现过程（非常好的UML序列图，我就偷懒不画了，出自 <a href="http://blog.csdn.net/oracleot/article/details/19163007）" target="_blank" rel="external">http://blog.csdn.net/oracleot/article/details/19163007）</a></p>
 <p><img src="http://img.blog.csdn.net/20140213160628984" alt="Handler消息机制的实现过程"></p>
@@ -427,6 +428,9 @@
 <p>这里有两个回调，msg.callback指的是Handler.post中的Runnable，即若是post提交的消息直接给handleCallback处理，实现很简单：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">handleCallback</span><span class="params">(Message message)</span> </span>&#123;</div><div class="line">    message.callback.run();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>然后第二个mCallback是构建Handler时传入的引用，在使用上就是我们最熟悉的handleMessage方法，我们经常通过重写该方法实现消息处理逻辑。也就是说若不存在msg.callback，就会在收到消息后调用我们定义的handleMessage。这时执行的代码已经切换到Handler所在线程~！</p>
+<h2 id="关于自己"><a href="#关于自己" class="headerlink" title="关于自己"></a>关于自己</h2><blockquote>
+<p>其实是第一次花时间把自己看的源码分析用心记录下来，所以虽然是热门知识，也希望能分享出来，当作激励自己继续去进步、专研。</p>
+</blockquote>
 
       
     </div>
@@ -641,7 +645,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引子"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现过程"><span class="nav-number">2.</span> <span class="nav-text">实现过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MessageQueue"><span class="nav-number">3.</span> <span class="nav-text">MessageQueue</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Looper"><span class="nav-number">4.</span> <span class="nav-text">Looper</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Handler"><span class="nav-number">5.</span> <span class="nav-text">Handler</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引子"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现过程"><span class="nav-number">2.</span> <span class="nav-text">实现过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MessageQueue"><span class="nav-number">3.</span> <span class="nav-text">MessageQueue</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Looper"><span class="nav-number">4.</span> <span class="nav-text">Looper</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Handler"><span class="nav-number">5.</span> <span class="nav-text">Handler</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于自己"><span class="nav-number">6.</span> <span class="nav-text">关于自己</span></a></li></ol></div>
             
 
           </div>
